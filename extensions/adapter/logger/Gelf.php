@@ -108,6 +108,9 @@ class Gelf extends \lithium\core\Object {
 				if(isset($this->_config['defaults'])) {
 					$options['additional'] += $this->_config['defaults'];	
 				}				
+				if(is_object($options['additional'])) {
+					$options['additional'] = get_object_vars($options['additional']);
+				}
 				if(is_array($options['additional'])) {
 					foreach($options['additional'] as $key => $value) {
 						$options["_" . trim($key)] = $value;
