@@ -20,7 +20,7 @@ use lithium\analysis\Inspector;
 class Gelf extends \lithium\core\Object {
 
 	/**
-	 * Array that maps `Logger` message priority names to Growl-compatible priority levels.
+	 * Array that maps `Logger` message priority names to GELF-compatible priority levels.
 	 *
 	 * @var array
 	 */
@@ -49,45 +49,10 @@ class Gelf extends \lithium\core\Object {
      */
     const GRAYLOG2_PROTOCOL_VERSION = '1.0';
 
-	/**
-	 * Holds the connection resource used to send messages to Growl.
-	 *
-	 * @var resource
-	 */
 	protected $_connection = null;
 
-	/**
-	 * Allow the Growl connection resource to be auto-configured from constructor parameters.
-	 *
-	 * @var array
-	 */
 	protected $_autoConfig = array('connection');
 
-	/**
-	 * Growl logger constructor. Accepts an array of settings which are merged with the default
-	 * settings and used to create the connection and handle notifications.
-	 *
-	 * @see lithium\analysis\Logger::write()
-	 * @param array $config The settings to configure the logger. Available settings are as follows:
-	 *              - `'name`' _string_: The name of the application as it should appear in Growl's
-	 *                system settings. Defaults to the directory name containing your application.
-	 *              - `'host'` _string_: The Growl host with which to communicate, usually your
-	 *                local machine. Use this setting to send notifications to another machine on
-	 *                the network. Defaults to `'127.0.0.1'`.
-	 *              - `'port'` _integer_: Port of the host machine. Defaults to the standard Growl
-	 *                port, `9887`.
-	 *              - `'password'` _string_: Only required if the host machine requires a password.
-	 *                If notification or registration fails, check this against the host machine's
-	 *                Growl settings.
-	 *              - '`protocol'` _string_: Protocol to use when opening socket communication to
-	 *                Growl. Defaults to `'udp'`.
-	 *              - `'title'` _string_: The default title to display when showing Growl messages.
-	 *                The default value is the same as `'name'`, but can be changed on a per-message
-	 *                basis by specifying a `'title'` key in the `$options` parameter of
-	 *                `Logger::write()`.
-	 *              - `'notification'` _array_: A list of message types you wish to register with
-	 *                Growl to be able to send. Defaults to `array('Errors', 'Messages')`.
-	 */
 	public function __construct(array $config = array()) {
 
 		$defaults = array(
@@ -114,16 +79,6 @@ class Gelf extends \lithium\core\Object {
 		parent::__construct($config + $defaults);
 	}
 
-	/**
-	 * Writes `$message` to a new Growl notification.
-	 *
-	 * @param string $type The `Logger`-based priority of the message. This value is mapped to
-	 *               a Growl-specific priority value if possible.
-	 * @param string $message Message to be shown.
-	 * @param array $options Any options that are passed to the `notify()` method. See the
-	 *              `$options` parameter of `notify()`.
-	 * @return closure Function returning boolean `true` on successful write, `false` otherwise.
-	 */
 	public function write($type, $message, array $options = array()) {
 		$_self =& $this;
 		$_levels = $this->_levels;
@@ -139,15 +94,6 @@ class Gelf extends \lithium\core\Object {
 		}; 
 	}
 
-	/**
-	 * Posts a new notification to the Growl server.
-	 *
-	 * @param string $description Message to be displayed.
-	 * @param array $options Options consists of:
-	 *        -'title': The title of the displayed notification. Displays the
-	 *         name of the application's parent folder by default.
-	 * @return boolean Always returns `true`.
-	 */
 	public function notify($description = '', $options = array()) {
 			$current = array('file' => 'unkonwn', 'line' => 0);
 			$trace = debug_backtrace();
@@ -177,7 +123,7 @@ class Gelf extends \lithium\core\Object {
 							  'timestamp' 	  => time(),	
 							  'file'		  => $current['file'],
 							  'short_message' => $description,
-							  'host'		  => $this->_config['host'],
+							  'host'		  => $_SERVER['SERVER_ADDR'],
 							  'version'		  => self::GRAYLOG2_PROTOCOL_VERSION,
 							  'line'		  => $current['line']);
 
@@ -284,12 +230,6 @@ class Gelf extends \lithium\core\Object {
         return pack('CC', 30, 15) . substr(md5($messageId, true), 0, 8) . pack('CC', $sequence, $sequenceSize) . $data;
     }    
 
-	/**
-	 * Creates a connection to the Growl server using the protocol, host and port configurations
-	 * specified in the constructor.
-	 *
-	 * @return resource Returns a connection resource created by `fsockopen()`.
-	 */
 	protected function _connection() {
 		if ($this->_connection) {
 			return $this->_connection;
@@ -301,14 +241,6 @@ class Gelf extends \lithium\core\Object {
 		throw new NetworkException("Gelf connection failed.");
 	}
 
-/*
-	public function __destruct() {
-		if (is_resource($this->_connection)) {
-			fclose($this->_connection);
-			unset($this->_connection);
-		}
-	} */
-	 
     /**
      * @param array $message
      * @return string
