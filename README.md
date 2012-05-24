@@ -1,5 +1,5 @@
 # li3_gelf
-lithium Graylog2 Logger
+lithium Graylog2 Logger - Roughly ported from https://github.com/Graylog2/gelf-php as lithium adapter
 
 Config:
 
@@ -33,4 +33,5 @@ $_levels = array(
 );
 ```
 
-Todo: Refactor, Docs, Test
+Todo: Refactor, Docs, Test -> work in progress
+
