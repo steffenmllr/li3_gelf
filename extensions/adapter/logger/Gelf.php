@@ -125,7 +125,7 @@ class Gelf extends \lithium\core\Object {
 							  'timestamp' 	  => time(),	
 							  'file'		  => $current['file'],
 							  'short_message' => $description,
-							  'host'		  => $_SERVER['SERVER_ADDR'],
+							  'host'		  => $_SERVER['REMOTE_ADDR'],
 							  'version'		  => self::GRAYLOG2_PROTOCOL_VERSION,
 							  'line'		  => $current['line']);
 
