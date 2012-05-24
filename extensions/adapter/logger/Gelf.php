@@ -11,7 +11,6 @@ namespace li3_gelf\extensions\adapter\logger;
 
 use lithium\core\NetworkException;
 use lithium\core\ConfigException;
-use lithium\analysis\Inspector;
 
 /**
  * The `Gelf` logger implements support for the [ GELF](http://www.graylog2.org/about/gelf) message system
@@ -105,12 +104,12 @@ class Gelf extends \lithium\core\Object {
 			}
 
 			if(isset($options['additional'])) {
-				if(isset($this->_config['defaults'])) {
-					$options['additional'] += $this->_config['defaults'];	
-				}				
 				if(is_object($options['additional'])) {
 					$options['additional'] = get_object_vars($options['additional']);
 				}
+				if(isset($this->_config['defaults'])) {
+					$options['additional'] += $this->_config['defaults'];	
+				}				
 				if(is_array($options['additional'])) {
 					foreach($options['additional'] as $key => $value) {
 						$options["_" . trim($key)] = $value;
